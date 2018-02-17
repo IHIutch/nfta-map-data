@@ -1,1 +1,0 @@
-# nfta-map-data
