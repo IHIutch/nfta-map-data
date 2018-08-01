@@ -1,7 +1,10 @@
 <?php
-$connection = mysqli_connect('mysql.jbhutch.com', 'jbhutch', '13miss37pop102brook', 'nfta_info');
+$connection = mysqli_connect('localhost', 'root', 'root', 'nfta_info');
     
     if(!$connection){
-        die("Database connection failed.");
+        echo "Error: Unable to connect to MySQL." . PHP_EOL;
+        echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
+        echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
+        exit;
     }
 ?>

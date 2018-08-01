@@ -9,7 +9,7 @@ function shapes(){
     include "db.php";
 
     // Select all the rows in the markers table
-    $query = "SELECT * FROM route_path";
+    $query = "SELECT * FROM `route_path` LIMIT 500";
     $result = mysqli_query($connection, $query);
     if (!$result) {
       die('Invalid query: ' . mysqli_error());
