@@ -283,7 +283,7 @@ function getCoords(){
     }
     
     while ($row = mysqli_fetch_assoc($result)){
-        
+        $points = array();
         $route_info = array(
             'shape' => array(
                 'type' => 'Feature',
