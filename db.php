@@ -1,10 +1,10 @@
 <?php
-$connection = mysqli_connect('localhost', 'root', 'root', 'nfta_info');
-    
-    if(!$connection){
-        echo "Error: Unable to connect to MySQL." . PHP_EOL;
-        echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
-        echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
-        exit;
-    }
-?>
+define('DBHOST', getenv('DBHOST'));
+define('DBUSER', getenv('DBUSER'));
+define('DBPASS', getenv('DBPASS'));
+define('DBNAME', getenv('DBNAME'));
+
+require __DIR__ . '/vendor/j4mie/idiorm/idiorm.php';
+ORM::configure('mysql:host=' . DBHOST . ';dbname=' . DBNAME);
+ORM::configure('username', DBUSER);
+ORM::configure('password', DBPASS);

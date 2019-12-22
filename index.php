@@ -1,73 +1,40 @@
-<?php include "inc/header.php";?>
-<?php include "maps_xml.php"; ?>
+<?php
 
-<div id="map" style="height: 1000px; width:1000px;"></div>
-<div class='map-overlay'>
-    <div id='route'></div>
-    <div id='points'></div>
-</div>
+date_default_timezone_set('America/New_York');
 
-<script>
-    mapboxgl.accessToken = 'pk.eyJ1IjoiamJodXRjaCIsImEiOiJjamRqZGU1eTYxMTZlMzNvMjV2dGxzdG8wIn0.IAAk5wKeLXOUaQ4QYF3sEA';
-    var map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v9',
-        center: [-78.87, 42.91],
-        zoom: 10
-    });
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-    
-    var route = document.getElementById('route');
-    var stops = document.getElementById('stops');
-    
-    map.on('load', function() {
+use DI\Container;
+use Dotenv\Dotenv;
+use Slim\Factory\AppFactory;
+use Slim\Middleware\ErrorMiddleware;
+use Slim\Views\PhpRenderer;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ServerResponseInterface as Response;
 
-        map.addLayer(
-            <?php 
-                echo json_encode(shapes());
-                ?>
-        );
+require './vendor/autoload.php';
 
-        var popup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
-        
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
-        map.on('mouseenter', 'route', function(e) {
-            // Change the cursor style as a UI indicator.
-            map.getCanvas().style.cursor = 'pointer';
-            map.setPaintProperty('route', 'line-width', 8);
-            
-            // Render found features in an overlay.
-            route.innerHTML = '';
-            
-            var id = document.createElement('div');
-            id.textContent = 'Route ID: ' + e.features[0].properties.route_id;
-            route.appendChild(id);
-            route.style.display = 'block';
-        });
-        
-        map.on('mouseenter', 'points', function(e) {
-            points.innerHTML = '';
-            
-            var name = document.createElement('div');
-            name.textContent = 'Stop Name: ' + e.features[0].properties.name;
-            points.appendChild(name);
-            points.style.display = 'block';
-        });
+require './db.php';
 
-        map.on('mouseleave', 'route', function() {
-            map.getCanvas().style.cursor = '';
-            map.setPaintProperty('route', 'line-width', 4);
-            route.style.display = 'none';
-        });
-        
-        map.on('mouseleave', 'points', function() {
-            points.style.display = 'none';
-        });
-    });
+$container = new Container();
+AppFactory::setContainer($container);
 
-</script>
+$app = AppFactory::create();
+$errorMiddleware = new ErrorMiddleware(
+    $app->getCallableResolver(),
+    $app->getResponseFactory(),
+    true,
+    false,
+    false
+);
+$app->add($errorMiddleware);
 
-<?php include "inc/footer.php"?>
+// Routes
+require './routes/api.php';
+
+$app->run();
