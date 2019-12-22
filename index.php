@@ -1,7 +1,7 @@
 <?php include "inc/header.php";?>
 <?php include "maps_xml.php"; ?>
 
-<div id="map"></div>
+<div id="map" style="height: 1000px; width:1000px;"></div>
 <div class='map-overlay'>
     <div id='route'></div>
     <div id='points'></div>
@@ -11,7 +11,7 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoiamJodXRjaCIsImEiOiJjamRqZGU1eTYxMTZlMzNvMjV2dGxzdG8wIn0.IAAk5wKeLXOUaQ4QYF3sEA';
     var map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v10',
+        style: 'mapbox://styles/mapbox/streets-v9',
         center: [-78.87, 42.91],
         zoom: 10
     });
@@ -23,11 +23,9 @@
     map.on('load', function() {
 
         map.addLayer(
-            <?php shapes();?>
-        );
-        
-        map.addLayer(
-            <?php stops();?>
+            <?php 
+                echo json_encode(shapes());
+                ?>
         );
 
         var popup = new mapboxgl.Popup({

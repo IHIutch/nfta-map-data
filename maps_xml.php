@@ -9,10 +9,14 @@ function shapes(){
     include "db.php";
 
     // Select all the rows in the markers table
-    $query = "SELECT * FROM `route_path` LIMIT 500";
+    $query = "SELECT shapes.shape_pt_lat, shapes.shape_pt_lon, shapes.shape_id 
+    FROM shapes 
+    INNER JOIN trips ON shapes.shape_id = trips.shape_id 
+    WHERE trips.route_id = 1";
+
     $result = mysqli_query($connection, $query);
     if (!$result) {
-      die('Invalid query: ' . mysqli_error());
+      die('Invalid query: 6' . mysqli_error($connection));
     }
 
     $previous = 1;
@@ -39,10 +43,10 @@ function shapes(){
                 )
             );
             array_push($allRoutes, $route);
-            array_push($coords, array($row['lng'], $row['lat']));
+            array_push($coords, array($row['shape_pt_lon'], $row['shape_pt_lat']));
             $coords = array();
         } else{
-            array_push($coords, array($row['lng'], $row['lat']));
+            array_push($coords, array($row['shape_pt_lon'], $row['shape_pt_lat']));
         } 
         
         $previous = $current;
@@ -71,7 +75,7 @@ function shapes(){
         )
     );
     
-    echo json_encode($mapPath, JSON_PRETTY_PRINT);
+    return $mapPath;
     
 };
 
@@ -80,10 +84,10 @@ function stops(){
     include "db.php";
 
     // Select all the rows in the markers table
-    $query = "SELECT * FROM nfta_stops";
+    $query = "SELECT * FROM stops";
     $result = mysqli_query($connection, $query);
     if (!$result) {
-      die('Invalid query: ' . mysqli_error());
+      die('Invalid query: 7' . mysqli_error($connection));
     }
 
     $previous = 0;
@@ -134,7 +138,7 @@ function stops(){
         )
     );
     
-    echo json_encode($allStops, JSON_PRETTY_PRINT);
+    return $allStops;
     
 };
 
@@ -143,5 +147,5 @@ function test(){
     shapes();
 };
 
-test();
+// test();
 ?>

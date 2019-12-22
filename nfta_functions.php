@@ -37,7 +37,7 @@ function getTimes(){
     //Return error if connection fails
     $result = mysqli_query($connection, $query);
     if (!$result) {
-      die('Invalid query: ' . mysqli_error());
+      die('Invalid query: 1' . mysqli_error($connection));
     }
 
     // Puts Stop Data into an array
@@ -91,7 +91,7 @@ ORDER BY
         //Return error if connection fails
     $result = mysqli_query($connection, $query);
     if (!$result) {
-      die('Invalid query: ' . mysqli_error());
+      die('Invalid query: 2' . mysqli_error($connection));
     }
     
     while ($row = mysqli_fetch_assoc($result)){
@@ -145,7 +145,7 @@ ORDER BY
     
     $result = mysqli_query($connection, $query);
     if (!$result) {
-      die('Invalid query: ' . mysqli_error());
+      die('Invalid query: 3' . mysqli_error($connection));
     }
 
     $previous = 0;
@@ -215,7 +215,7 @@ function renderRoute(){
     
     $result = mysqli_query($connection, $query);
     if (!$result) {
-      die('Invalid query: ' . mysqli_error());
+      die('Invalid query: 4' . mysqli_error($connection));
     }
 
     $previous = 0;
@@ -279,11 +279,12 @@ function getCoords(){
     
     $result = mysqli_query($connection, $query);
     if (!$result) {
-      die('Invalid query: ' . mysqli_error());
+      die('Invalid query: 5' . mysqli_error($connection));
     }
     
     while ($row = mysqli_fetch_assoc($result)){
-        $points = array();
+        $points[] = array($row['shape_pt_lon'], $row['shape_pt_lat']);
+    
         $route_info = array(
             'shape' => array(
                 'type' => 'Feature',
@@ -302,18 +303,17 @@ function getCoords(){
                 'opacity' => 1
             )
         );
-        $points[] = array($row['shape_pt_lon'], $row['shape_pt_lat']);
     };
-    
+     
     return $route_info;
 };
 
 
 function test(){
     header('Content-Type: application/json');
-    $a = getTimes();
+    $a = getCoords();
     
-    echo json_encode($a);
+    echo json_encode($a, JSON_PRETTY_PRINT);
 };
 
 //test();
