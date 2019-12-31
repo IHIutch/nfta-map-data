@@ -123,9 +123,9 @@ $app->get('/api/route/{route_id}/path', function ($request, $response, $args) {
         ->find_many();
 
     $path = [];
-    foreach ($route_path as $res) {
+    foreach ($route_path as $path) {
         array_push($path, [
-            $res->shape_pt_lat, $res->shape_pt_lon
+            $path->shape_pt_lat, $path->shape_pt_lon
         ]);
     };
 
@@ -140,12 +140,12 @@ $app->get('/api/route/{route_id}/path', function ($request, $response, $args) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// $app->get('/api/route/{route_id}/stops', function ($request, $response) {
+$app->get('/api/route/{route_id}/stops', function ($request, $response) {
 
 
-//     $response->getBody()->write($data);
-//     return $response->withHeader('Content-Type', 'application/json');
-// });
+    $response->getBody()->write($data);
+    return $response->withHeader('Content-Type', 'application/json');
+});
 
 // $app->get('/api/stop/{stop_id}/?', function ($request, $response) {
 
