@@ -108,31 +108,36 @@ $app->get('/api/route/{route_id}/path', function ($request, $response, $args) {
         ->where('route_id', $route_id)
         ->find_one();
 
-    $route_path = ORM::for_table('shapes')
-        ->select_many('shapes.shape_pt_lat', 'shapes.shape_pt_lon')
-        ->join('trips', [
+    $route_shape = ORM::for_table('trips')
+        ->select_many('trips.trip_id', 'trips.shape_id', 'shapes.shape_pt_lat', 'shapes.shape_pt_lon', 'shapes.shape_pt_sequence')
+        ->join('shapes', [
             'shapes.shape_id',
             '=',
             'trips.shape_id'
         ])
         ->where([
             'trips.route_id' => $route_id,
-            'trips.shape_id' => 1
+            'trips.service_id' => 1
         ])
-        ->order_by_asc('trips.trip_id')
+        ->order_by_asc('trip_id')
+        ->order_by_asc('shape_pt_sequence')
         ->find_many();
 
-    $temp_path = [];
-    foreach ($route_path as $path) {
-        array_push($temp_path, [
-            $path->shape_pt_lat, $path->shape_pt_lon
+    $temp_shape = [];
+    foreach ($route_shape as $shape) {
+        array_push($temp_shape, [
+            'trip_id' => $shape->trip_id,
+            'shape_id' => $shape->shape_id,
+            'shape_pt_sequence' => $shape->shape_pt_sequence,
+            'shape_pt_lat' => $shape->shape_pt_lat,
+            'shape_pt_lon' => $shape->shape_pt_lon
         ]);
     };
 
     $data = [];
-    $data['route_path'] = $temp_path;
     $data['route_name'] = $route_info->route_long_name;
     $data['route_color'] = $route_info->route_color;
+    $data['route_shape'] = $temp_shape;
 
     $data = json_encode($data);
 
