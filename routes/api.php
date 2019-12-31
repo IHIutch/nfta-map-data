@@ -35,10 +35,7 @@ $app->get('/api/all-routes/stops', function ($request, $response) {
 
         $temp_stops = [];
         foreach ($temp_trips as $trip) {
-            if (!isset($temp_stops[$trip->trip_id])) {
-                $temp_stops[$trip->trip_id] = [];
-            };
-            array_push($temp_stops[$trip->trip_id], [
+            array_push($temp_stops, [
                 'stop_id' => $trip->stop_id,
                 'stop_sequence' => $trip->stop_sequence
             ]);
@@ -83,10 +80,7 @@ $app->get('/api/all-routes/paths', function ($request, $response) {
 
         $temp_shapes = [];
         foreach ($temp_trips as $trip) {
-            if (!isset($temp_shapes[$trip->shape_id])) {
-                $temp_shapes[$trip->shape_id] = [];
-            };
-            array_push($temp_shapes[$trip->shape_id], [
+            array_push($temp_shapes, [
                 'shape_id' => $trip->shape_id,
                 'shape_pt_sequence' => $trip->shape_pt_sequence,
                 'shape_pt_lat' => $trip->shape_pt_lat,
