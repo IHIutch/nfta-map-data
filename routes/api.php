@@ -122,15 +122,15 @@ $app->get('/api/route/{route_id}/path', function ($request, $response, $args) {
         ->order_by_asc('trips.trip_id')
         ->find_many();
 
-    $path = [];
+    $temp_path = [];
     foreach ($route_path as $path) {
-        array_push($path, [
+        array_push($temp_path, [
             $path->shape_pt_lat, $path->shape_pt_lon
         ]);
     };
 
     $data = [];
-    $data['route_path'] = $path;
+    $data['route_path'] = $temp_path;
     $data['route_name'] = $route_info->route_long_name;
     $data['route_color'] = $route_info->route_color;
 
