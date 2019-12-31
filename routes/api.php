@@ -30,12 +30,14 @@ $app->get('/api/all-routes/stops', function ($request, $response) {
                 'trips.route_id' => $route->route_id,
                 'trips.service_id' => 1,
             ])
+            ->order_by_asc('trip_id')
             ->order_by_asc('stop_sequence')
             ->find_many();
 
         $temp_stops = [];
         foreach ($temp_trips as $trip) {
             array_push($temp_stops, [
+                'trip_id' => $trip->trip_id,
                 'stop_id' => $trip->stop_id,
                 'stop_sequence' => $trip->stop_sequence
             ]);
@@ -44,7 +46,7 @@ $app->get('/api/all-routes/stops', function ($request, $response) {
         array_push($data, [
             'route_long_name' => $route->route_long_name,
             'route_id' => $route->route_id,
-            'trips' => $temp_stops,
+            'stops' => $temp_stops,
         ]);
     };
 
@@ -64,8 +66,7 @@ $app->get('/api/all-routes/paths', function ($request, $response) {
     $data = [];
     foreach ($routes as $route) {
         $temp_trips = ORM::for_table('trips')
-            ->distinct()->select('shapes.shape_pt_sequence')
-            ->select_many('trips.shape_id', 'shapes.shape_pt_lat', 'shapes.shape_pt_lon')
+            ->select_many('trips.trip_id', 'trips.shape_id', 'shapes.shape_pt_lat', 'shapes.shape_pt_lon', 'shapes.shape_pt_sequence')
             ->join('shapes', [
                 'shapes.shape_id',
                 '=',
@@ -75,12 +76,14 @@ $app->get('/api/all-routes/paths', function ($request, $response) {
                 'trips.route_id' => $route->route_id,
                 'trips.service_id' => 1,
             ])
+            ->order_by_asc('trip_id')
             ->order_by_asc('shape_pt_sequence')
             ->find_many();
 
         $temp_shapes = [];
         foreach ($temp_trips as $trip) {
             array_push($temp_shapes, [
+                'trip_id' => $trip->trip_id,
                 'shape_id' => $trip->shape_id,
                 'shape_pt_sequence' => $trip->shape_pt_sequence,
                 'shape_pt_lat' => $trip->shape_pt_lat,
