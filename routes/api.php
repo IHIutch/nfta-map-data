@@ -5,41 +5,55 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 $app->get('/', function ($request, $response) {
-    $params = $request->getQueryParams();
 
-    $query = "SELECT shapes.shape_pt_lat, shapes.shape_pt_lon, shapes.shape_id, routes.route_long_name, routes.route_color
-    FROM shapes 
-    INNER JOIN trips 
-    ON shapes.shape_id = trips.shape_id 
-     INNER JOIN routes
-        ON trips.route_id = routes.route_id 
-    WHERE trips.route_id = " . $params['route'] .
-        " AND trips.shape_id = " . $params['trip'];
+    $response->getBody()->write("hello");
+    return $response;
+});
 
-    $result = $this->get('db')->query($query);
-    $result->execute();
-    $result = $result->fetchAll(PDO::FETCH_ASSOC);
+$app->get('/api/all-routes/stops', function ($request, $response) {
+    $routes = ORM::for_table('routes')
+        ->distinct()->select('route_id')
+        ->select_many('route_long_name')
+        ->order_by_asc('route_id')
+        ->find_many();
 
-    $route_path = [];
-    foreach ($result as $res) {
-        array_push($route_path, [
-            $res['shape_pt_lat'], $res['shape_pt_lon']
+    $data = [];
+    foreach ($routes as $route) {
+        $temp_trips = ORM::for_table('trips')
+            ->select_many('trips.trip_id', 'stop_times.stop_id', 'stop_times.stop_sequence')
+            ->join('stop_times', [
+                'stop_times.trip_id',
+                '=',
+                'trips.trip_id'
+            ])
+            ->where([
+                'trips.route_id' => $route->route_id,
+                'trips.service_id' => 1,
+            ])
+            ->order_by_asc('stop_sequence')
+            ->find_many();
+
+        $temp_stops = [];
+        foreach ($temp_trips as $trip) {
+            if (!isset($temp_stops[$trip->trip_id])) {
+                $temp_stops[$trip->trip_id] = [];
+            };
+            array_push($temp_stops[$trip->trip_id], [
+                'stop_id' => $trip->stop_id,
+                'stop_sequence' => $trip->stop_sequence
+            ]);
+        };
+
+        array_push($data, [
+            'route_long_name' => $route->route_long_name,
+            'route_id' => $route->route_id,
+            'trips' => $temp_stops,
         ]);
     };
 
-    $data = [];
-    $data['route_path'] = $route_path;
-    $data['route_name'] = $result[0]['route_long_name'];
-    $data['route_color'] = $result[0]['route_color'];
+    $data = json_encode($data);
 
-    $response->getBody()->write(json_encode($data));
-    return $response->withHeader('Content-Type', 'application/json');
-});
-
-$app->get('/api/all-routes/?', function ($request, $response) {
-
-
-    $response->getBody()->write(json_encode($data));
+    $response->getBody()->write(($data));
     return $response->withHeader('Content-Type', 'application/json');
 });
 
