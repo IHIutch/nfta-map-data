@@ -140,8 +140,44 @@ $app->get('/api/route/{route_id}/path', function ($request, $response, $args) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-$app->get('/api/route/{route_id}/stops', function ($request, $response) {
+$app->get('/api/route/{route_id}/stops', function ($request, $response, $args) {
+    $route_id = $args['route_id'];
 
+    $route_info = ORM::for_table('routes')
+        ->select_many('route_long_name', 'route_color')
+        ->where('route_id', $route_id)
+        ->find_one();
+
+    $route_stops = ORM::for_table('trips')
+        ->select_many('trips.trip_id', 'stop_times.stop_id', 'stop_times.stop_sequence')
+        ->join('stop_times', [
+            'stop_times.trip_id',
+            '=',
+            'trips.trip_id'
+        ])
+        ->where([
+            'trips.route_id' => $route_id,
+            'trips.service_id' => 1
+        ])
+        ->order_by_asc('trip_id')
+        ->order_by_asc('stop_sequence')
+        ->find_many();
+
+    $temp_stops = [];
+    foreach ($route_stops as $stop) {
+        array_push($temp_stops, [
+            'trip_id' => $stop->trip_id,
+            'stop_id' => $stop->stop_id,
+            'stop_sequence' => $stop->stop_sequence
+        ]);
+    };
+
+    $data = [];
+    $data['route_name'] = $route_info->route_long_name;
+    $data['route_color'] = $route_info->route_color;
+    $data['route_stops'] = $temp_stops;
+
+    $data = json_encode($data);
 
     $response->getBody()->write($data);
     return $response->withHeader('Content-Type', 'application/json');
