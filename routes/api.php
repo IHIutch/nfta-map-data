@@ -188,16 +188,68 @@ $app->get('/api/route/{route_id}/stops', function ($request, $response, $args) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// $app->get('/api/stop/{stop_id}/?', function ($request, $response) {
+$app->get('/api/stop/{stop_id}', function ($request, $response, $args) {
+    $stop_id = $args['stop_id'];
 
+    $stop_info = ORM::for_table('stops')
+        ->select_many('stop_code', 'stop_name', 'stop_lat', 'stop_lon')
+        ->where('stop_id', $stop_id)
+        ->find_one();
 
-//     $response->getBody()->write($data);
-//     return $response->withHeader('Content-Type', 'application/json');
-// });
+    $stop_times = ORM::for_table('stop_times')
+        ->select_many('stop_times.trip_id', 'stop_times.arrival_time', 'stop_times.departure_time', 'stop_times.stop_sequence', 'trips.route_id')
+        ->join('trips', [
+            'trips.trip_id',
+            '=',
+            'stop_times.trip_id'
+        ])
+        ->where('stop_id', $stop_id)
+        ->order_by_asc('trip_id')
+        ->order_by_asc('stop_sequence')
+        ->find_many();
 
-// $app->get('/api/all-stops/?', function ($request, $response) {
+    $temp_times = [];
+    foreach ($stop_times as $times) {
+        array_push($temp_times, [
+            'trip_id' => $times->trip_id,
+            'arrival_time' => $times->arrival_time,
+            'departure_time' => $times->departure_time,
+            'stop_sequence' => $times->stop_sequence,
+            'route_id' => $times->route_id,
+        ]);
+    };
 
+    $data = [];
+    $data['stop_code'] = $stop_info->stop_code;
+    $data['stop_name'] = $stop_info->stop_name;
+    $data['stop_lat'] = $stop_info->stop_lat;
+    $data['stop_lon'] = $stop_info->stop_lon;
+    $data['stop_times'] = $temp_times;
 
-//     $response->getBody()->write($data);
-//     return $response->withHeader('Content-Type', 'application/json');
-// });
+    $data = json_encode($data);
+
+    $response->getBody()->write($data);
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+$app->get('/api/all-stops', function ($request, $response) {
+    $stop_info = ORM::for_table('stops')
+        ->select_many('stop_id', 'stop_code', 'stop_name', 'stop_lat', 'stop_lon')
+        ->find_many();
+
+    $temp_stops = [];
+    foreach ($stop_info as $stop) {
+        array_push($temp_stops, [
+            'stop_id' => $stop->stop_id,
+            'stop_code' => $stop->stop_code,
+            'stop_name' => $stop->stop_name,
+            'stop_lat' => $stop->stop_lat,
+            'stop_lon' => $stop->stop_lon,
+        ]);
+    };
+
+    $data = json_encode($temp_stops);
+
+    $response->getBody()->write($data);
+    return $response->withHeader('Content-Type', 'application/json');
+});
