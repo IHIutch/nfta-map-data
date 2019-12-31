@@ -17,7 +17,6 @@ $app->get('/api/all-routes/stops', function ($request, $response) {
         ->order_by_asc('route_id')
         ->find_many();
 
-    $data = [];
     foreach ($routes as $route) {
         $temp_trips = ORM::for_table('trips')
             ->select_many('trips.trip_id', 'stop_times.stop_id', 'stop_times.stop_sequence')
@@ -43,11 +42,10 @@ $app->get('/api/all-routes/stops', function ($request, $response) {
             ]);
         };
 
-        array_push($data, [
-            'route_long_name' => $route->route_long_name,
-            'route_id' => $route->route_id,
-            'stops' => $temp_stops,
-        ]);
+        $data = [];
+        $data['route_long_name'] = $route->route_long_name;
+        $data['route_id'] = $route->route_id;
+        $data['stops'] = $temp_stops;
     };
 
     $data = json_encode($data);
@@ -63,7 +61,6 @@ $app->get('/api/all-routes/paths', function ($request, $response) {
         ->order_by_asc('route_id')
         ->find_many();
 
-    $data = [];
     foreach ($routes as $route) {
         $temp_trips = ORM::for_table('trips')
             ->select_many('trips.trip_id', 'trips.shape_id', 'shapes.shape_pt_lat', 'shapes.shape_pt_lon', 'shapes.shape_pt_sequence')
@@ -91,11 +88,10 @@ $app->get('/api/all-routes/paths', function ($request, $response) {
             ]);
         };
 
-        array_push($data, [
-            'route_long_name' => $route->route_long_name,
-            'route_id' => $route->route_id,
-            'shapes' => $temp_shapes,
-        ]);
+        $data = [];
+        $data['route_long_name'] = $route->route_long_name;
+        $data['route_id'] = $route->route_id;
+        $data['shapes'] = $temp_shapes;
     };
 
     $data = json_encode($data);
@@ -104,7 +100,7 @@ $app->get('/api/all-routes/paths', function ($request, $response) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-$app->get('/api/route/{route_id}', function ($request, $response, $args) {
+$app->get('/api/route/{route_id}/path', function ($request, $response, $args) {
     $route_id = $args['route_id'];
 
     $route_info = ORM::for_table('routes')
@@ -144,7 +140,7 @@ $app->get('/api/route/{route_id}', function ($request, $response, $args) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// $app->get('/api/route/{route_id}/stops/?', function ($request, $response) {
+// $app->get('/api/route/{route_id}/stops', function ($request, $response) {
 
 
 //     $response->getBody()->write($data);
