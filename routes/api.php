@@ -36,18 +36,18 @@ $app->get('/api/all-routes/stops', function ($request, $response) {
 
         $temp_stops = [];
         foreach ($route_stops as $stop) {
-            array_push($temp_stops, [
+            $temp_stops[] = [
                 'trip_id' => $stop->trip_id,
                 'stop_id' => $stop->stop_id,
                 'stop_sequence' => $stop->stop_sequence
-            ]);
+            ];
         };
 
         $temp_route = [];
         $temp_route['route_long_name'] = $route->route_long_name;
         $temp_route['route_id'] = $route->route_id;
         $temp_route['stops'] = $temp_stops;
-        array_push($data, $temp_route);
+        $data[] = $temp_route;
     };
 
     $data = json_encode($data);
@@ -82,20 +82,20 @@ $app->get('/api/all-routes/paths', function ($request, $response) {
 
         $temp_path = [];
         foreach ($route_path as $path) {
-            array_push($temp_path, [
+            $temp_path[] = [
                 'trip_id' => $path->trip_id,
                 'shape_id' => $path->shape_id,
                 'shape_pt_sequence' => $path->shape_pt_sequence,
                 'shape_pt_lat' => $path->shape_pt_lat,
                 'shape_pt_lon' => $path->shape_pt_lon
-            ]);
+            ];
         };
 
         $temp_route = [];
         $temp_route['route_long_name'] = $route->route_long_name;
         $temp_route['route_id'] = $route->route_id;
         $temp_route['shapes'] = $temp_path;
-        array_push($data, $temp_route);
+        $data[] = $temp_route;
     };
 
     $data = json_encode($data);
@@ -129,13 +129,13 @@ $app->get('/api/route/{route_id}/path', function ($request, $response, $args) {
 
     $temp_path = [];
     foreach ($route_path as $path) {
-        array_push($temp_path, [
+        $temp_path[] = [
             'trip_id' => $path->trip_id,
             'shape_id' => $path->shape_id,
             'shape_pt_sequence' => $path->shape_pt_sequence,
             'shape_pt_lat' => $path->shape_pt_lat,
             'shape_pt_lon' => $path->shape_pt_lon
-        ]);
+        ];
     };
 
     $data = [];
@@ -174,11 +174,11 @@ $app->get('/api/route/{route_id}/stops', function ($request, $response, $args) {
 
     $temp_stops = [];
     foreach ($route_stops as $stop) {
-        array_push($temp_stops, [
+        $temp_stops[] = [
             'trip_id' => $stop->trip_id,
             'stop_id' => $stop->stop_id,
             'stop_sequence' => $stop->stop_sequence
-        ]);
+        ];
     };
 
     $data = [];
@@ -214,13 +214,13 @@ $app->get('/api/stop/{stop_id}', function ($request, $response, $args) {
 
     $temp_times = [];
     foreach ($stop_times as $times) {
-        array_push($temp_times, [
+        $temp_times[] = [
             'trip_id' => $times->trip_id,
             'arrival_time' => $times->arrival_time,
             'departure_time' => $times->departure_time,
             'stop_sequence' => $times->stop_sequence,
             'route_id' => $times->route_id,
-        ]);
+        ];
     };
 
     $data = [];
@@ -243,13 +243,13 @@ $app->get('/api/all-stops', function ($request, $response) {
 
     $temp_stops = [];
     foreach ($stop_info as $stop) {
-        array_push($temp_stops, [
+        $temp_stops[] = [
             'stop_id' => $stop->stop_id,
             'stop_code' => $stop->stop_code,
             'stop_name' => $stop->stop_name,
             'stop_lat' => $stop->stop_lat,
             'stop_lon' => $stop->stop_lon,
-        ]);
+        ];
     };
 
     $data = json_encode($temp_stops);
