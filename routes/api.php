@@ -17,6 +17,7 @@ $app->get('/api/all-routes/stops', function ($request, $response) {
         ->order_by_asc('route_id')
         ->find_many();
 
+    $data = [];
     foreach ($routes as $route) {
         $route_stops = ORM::for_table('trips')
             ->select_many('trips.trip_id', 'stop_times.stop_id', 'stop_times.stop_sequence')
@@ -42,10 +43,11 @@ $app->get('/api/all-routes/stops', function ($request, $response) {
             ]);
         };
 
-        $data = [];
-        $data['route_long_name'] = $route->route_long_name;
-        $data['route_id'] = $route->route_id;
-        $data['stops'] = $temp_stops;
+        $temp_route = [];
+        $temp_route['route_long_name'] = $route->route_long_name;
+        $temp_route['route_id'] = $route->route_id;
+        $temp_route['stops'] = $temp_stops;
+        array_push($data, $temp_route);
     };
 
     $data = json_encode($data);
@@ -61,6 +63,7 @@ $app->get('/api/all-routes/paths', function ($request, $response) {
         ->order_by_asc('route_id')
         ->find_many();
 
+    $data = [];
     foreach ($routes as $route) {
         $route_path = ORM::for_table('trips')
             ->select_many('trips.trip_id', 'trips.shape_id', 'shapes.shape_pt_lat', 'shapes.shape_pt_lon', 'shapes.shape_pt_sequence')
@@ -88,10 +91,11 @@ $app->get('/api/all-routes/paths', function ($request, $response) {
             ]);
         };
 
-        $data = [];
-        $data['route_long_name'] = $route->route_long_name;
-        $data['route_id'] = $route->route_id;
-        $data['shapes'] = $temp_path;
+        $temp_route = [];
+        $temp_route['route_long_name'] = $route->route_long_name;
+        $temp_route['route_id'] = $route->route_id;
+        $temp_route['shapes'] = $temp_path;
+        array_push($data, $temp_route);
     };
 
     $data = json_encode($data);
